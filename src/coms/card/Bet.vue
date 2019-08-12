@@ -1,13 +1,13 @@
 <template>
   <div class="bet-card">
     <div class="title">
-      {{ data.title }}
+      {{ item.title }}
     </div>
     <div class="intro">
-      {{ data.intro }}
+      {{ item.intro }}
     </div>
     <div class="gift">
-      {{ data.gift }}
+      {{ item.gift }}
     </div>
     <div class="peoples">
       <div class="people">
@@ -26,7 +26,7 @@ import { IBetInfo } from '../../api/bet';
 })
 export default class App extends Vue {
   @Prop()
-  data!: IBetInfo;
+  item!: IBetInfo;
   // beforeMount(){}
   // mounted(){}
   // created(){}

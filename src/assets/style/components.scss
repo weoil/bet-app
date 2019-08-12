@@ -1,0 +1,15 @@
+.button{
+  background: none;
+  &::before{
+    margin-right: 15upx;
+  }
+  &::after{
+    border: none;
+  }
+  &[type="danger"]{
+    background-color: red;
+  }
+  &[asuccess]{
+    color: green;
+  }
+}

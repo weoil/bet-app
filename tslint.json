@@ -4,6 +4,9 @@
   "jsRules": {
     "no-unused-expression": true
   },
+  "linterOptions": {
+    "exclude": ["*.json"]
+  },
   "rules": {
     "quotemark": [true, "single"],
     "member-access": [false],
@@ -12,7 +15,10 @@
     "member-ordering": [false],
     "interface-name": [false],
     "arrow-parens": false,
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "no-console": false,
+    "prefer-const": false,
+    "no-empty-interface":false
   },
   "rulesDirectory": []
 }

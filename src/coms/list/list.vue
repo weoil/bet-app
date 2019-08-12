@@ -47,10 +47,6 @@ export default class List extends Vue {
   query: any; // 请求参数
   @Prop()
   getData: any; // 请求函数
-  @Prop({
-    type: Boolean,
-    default: false,
-  })
   // 当query发生改变的时候,自动进行刷新
   @Watch('query', { deep: true })
   onQueryChange() {
@@ -74,7 +70,7 @@ export default class List extends Vue {
         // throw new Error("page change")
         return;
       }
-      for (let key of Object.keys(query)) {
+      for (const key of Object.keys(query)) {
         diff = query[key] === this.query[key];
         if (!diff) {
           // throw new Error("query change")

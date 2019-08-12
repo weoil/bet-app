@@ -2,8 +2,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import mpAdapter from 'axios-miniprogram-adapter';
 import Vue from 'vue';
 import Store from '@/store';
-import { formatRouterParams } from '../../../utils';
-import { baseUrl } from '../../../config';
+import { formatRouterParams } from '@/utils';
+import { baseUrl } from '@/../config.json';
 const Instance = axios.create({
   baseURL: baseUrl,
 });
@@ -52,7 +52,7 @@ interface IRequestConfig extends AxiosRequestConfig {
   safe: boolean;
 }
 
-export async function get<T = any>(
+export async function get<T>(
   url: string,
   data?: IData,
   config?: IRequestConfig,

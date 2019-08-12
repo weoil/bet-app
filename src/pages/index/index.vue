@@ -15,12 +15,15 @@
         <list :getData="getData" :query="query" ref="list">
           <template v-slot="{ list }">
             <div v-for="bet in list" :key="bet.id">
-              <bat-card :data="bet"></bat-card>
+              <bat-card :item="bet"></bat-card>
             </div>
           </template>
         </list>
       </div>
     </div>
+    <button class="button" type="danger" loading>
+      hello
+    </button>
   </div>
 </template>
 
