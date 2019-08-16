@@ -6,14 +6,15 @@ import Vue from 'vue';
 import { Login } from '@/api/user';
 import { Loading, Login as ApiLogin } from '@/utils/uniapi';
 export enum Identity {
+  Any = 'any', // 所有人
   Customer = '', // 普通用户
-  Sale = 'sale', // 销售
-  Leader = 'leader', // 管理员
+  Admin = 'admin', // 管理员
+  Vip = 'vip', // 会员
+  SuperVip = 'superVip', // 超级会员
 }
 const defaultUserInfo = {};
 export const defaultState: Store.User.State = {
   id: '',
-  sessionKey: '',
   token: '',
   info: JSON.parse(JSON.stringify(defaultUserInfo)),
 };
@@ -22,12 +23,11 @@ export const defaultState: Store.User.State = {
 const mutations: MutationTree<Store.User.State> = {
   // 设置用户(包含sessionKey)
   SET_USER(state, payload: ILoginResult) {
-    const { sessionKey, id, token, info } = payload;
+    const { id, token, info } = payload;
     state.id = id;
     if (token) {
       state.token = payload.token;
     }
-    state.sessionKey = sessionKey;
     state.info = info;
   },
 };
@@ -41,6 +41,7 @@ const actions: ActionTree<Store.User.State, any> = {
     }
     result = await Login(code);
     ctx.commit('SET_USER', result);
+    Loading.hide();
     return result;
   },
   async Author(

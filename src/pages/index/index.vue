@@ -21,9 +21,7 @@
         </list>
       </div>
     </div>
-    <button class="button" type="danger" loading>
-      hello
-    </button>
+    <button open-type="getUserInfo" @getuserinfo="onAuthor">授权</button>
   </div>
 </template>
 
@@ -33,6 +31,7 @@ import List, { IQuery, getList } from '@/coms/list/list.vue';
 import BetCard from '@/coms/card/Bet.vue';
 import { getBetList } from '@/api/bet';
 import { getRefElement } from '../../utils';
+import { Author } from '../../api/user';
 @Component({
   name: 'Index',
   components: {
@@ -43,9 +42,7 @@ import { getRefElement } from '../../utils';
 export default class Index extends Vue {
   query: AnyObject = {};
   // beforeMount(){}
-  mounted() {
-    this.$store.dispatch('Login');
-  }
+  // mounted() {}
   async refresh() {
     const list = getList(this);
     list.refresh();
@@ -53,6 +50,12 @@ export default class Index extends Vue {
   async getData(query: { page: number }) {
     const result = await getBetList(query.page);
     return result;
+  }
+  async onAuthor(e: any) {
+    console.log(e);
+    const { encryptedData, iv } = e.detail;
+    const result = await Author(encryptedData, iv);
+    console.log(result);
   }
   // created(){}
   // onShow(){}

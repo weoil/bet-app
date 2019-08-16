@@ -1,5 +1,7 @@
 <template>
-  <div class="bet-info"></div>
+  <div class="bet-info">
+    <button open-type="getUserInfo" @getuserinfo="onAuthor"></button>
+  </div>
 </template>
 
 <script lang='ts'>
@@ -16,6 +18,9 @@ export default class App extends Vue {
   // onHide(){}
   // onLoad(){}
   // onUnload(){}
+  onAuthor(e: any) {
+    console.log(e);
+  }
 }
 </script>
 

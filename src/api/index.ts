@@ -14,9 +14,9 @@ axios.defaults.adapter = a;
 
 Instance.interceptors.request.use(config => {
   config.headers.version = Store.state.version;
-  // if (Store.state.userState.authorization) {
-  //   config.headers['x-authorization'] = Store.state.userState.authorization;
-  // }
+  if (Store.state.user.token) {
+    config.headers['x-token'] = Store.state.user.token;
+  }
   // // #ifdef H5
   // config.headers['x-authorization'] = 'Store.state.userState.authorization';
   // #endif
@@ -25,17 +25,17 @@ Instance.interceptors.request.use(config => {
 // 取出resp中的data 返回result
 Instance.interceptors.response.use(
   resp => {
-    const data: { code: number; result: any; message: string } = resp.data;
+    const data: { code: number; data: any; msg: string } = resp.data;
     const code = Number(data.code);
-    if (code !== 0) {
+    if (code !== 200) {
       uni.showToast({
         icon: 'none',
         duration: 2000,
-        title: data.result || data.message,
+        title: data.msg,
       });
-      throw new Error(data.message);
+      throw new Error(data.msg);
     }
-    return data.result;
+    return data.data;
   },
   err => {
     uni.showToast({
