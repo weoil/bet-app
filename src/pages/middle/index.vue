@@ -1,5 +1,13 @@
 <template>
-  <div class="middle"></div>
+  <div class="middle">
+    <div class="loading">
+      <img
+        class="i-icon i-loading animate-rotate"
+        src="@/assets/image/loading.svg"
+        alt=""
+      />
+    </div>
+  </div>
 </template>
 
 <script lang='ts'>
@@ -64,5 +72,10 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 .middle {
+  .loading {
+    @include flex-center;
+    padding-top: -50upx;
+    height: 100vh;
+  }
 }
 </style>

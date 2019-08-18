@@ -1,15 +1,38 @@
-.button{
+.button {
   background: none;
-  &::before{
+  &::before {
     margin-right: 15upx;
   }
-  &::after{
+  &::after {
     border: none;
   }
-  &[type="danger"]{
+  &[type='danger'] {
     background-color: red;
   }
-  &[asuccess]{
+  &[success] {
     color: green;
+  }
+}
+.i-icon {
+  &.i-loading {
+    width: 150upx;
+    height: 150upx;
+  }
+  &.i-return {
+    width: 50upx;
+    height: 50upx;
+  }
+}
+
+.animate-rotate {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
