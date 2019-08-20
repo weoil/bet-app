@@ -11,7 +11,7 @@
       </div>
       <div class="footer" v-if="isShowFooter">
         <slot name="footer">
-          <button class="button cancel" v-if="isShowCancel">
+          <button class="button cancel" v-if="isShowCancel" @click="onCancel">
             {{ cancelText }}
           </button>
           <button class="button confirm" v-if="isShowConfirm">
@@ -92,7 +92,16 @@ export default App;
 
 <style lang="scss" scoped>
 .i-modal {
+  position: fixed;
+  min-height: 100vh;
+  width: 100%;
+  .wrapper{
+    transform: scale(0);
+  }
   &.visible {
+    .wrapper{
+
+    }
   }
 }
 </style>
