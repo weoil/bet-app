@@ -51,7 +51,7 @@
         "usingComponents":true,
         "appid": "wx76c0d0db56b2ddf4",
         "setting" : {
-        	"urlCheck" : true
+        	"urlCheck" : false
         }
     },
     "mp-alipay" : {
