@@ -1,6 +1,5 @@
-import { ILoginResult } from './../../api/user';
-import { post } from '../../api/index';
-
+import { ILoginResult, Author } from '@/api/user';
+import { post } from '@/api/index';
 import Vuex, { ActionTree, GetterTree, MutationTree } from 'vuex';
 import Vue from 'vue';
 import { Login } from '@/api/user';
@@ -46,10 +45,19 @@ const actions: ActionTree<Store.User.State, any> = {
   },
   async Author(
     { commit, state },
-    payload: { iv: string; encryptedData: string },
+    payload: { detail: { iv: string; encryptedData: string } },
   ) {
+    if (!payload.detail.iv) {
+      return;
+    }
     // const sessionKey = state.sessionKey;
-    // const { iv, encryptedData } = payload;
+    const { iv, encryptedData } = payload.detail;
+    const result = await Author(encryptedData, iv);
+    commit('SET_USER', {
+      info: result,
+      id: state.id,
+      token: state.id,
+    });
     // if (!iv || !encryptedData || !sessionKey) {
     //   throw new Error();
     // }

@@ -52,10 +52,7 @@ export default class Index extends Vue {
     return result;
   }
   async onAuthor(e: any) {
-    console.log(e);
-    const { encryptedData, iv } = e.detail;
-    const result = await Author(encryptedData, iv);
-    console.log(result);
+    await this.$store.dispatch('Author', e);
   }
   // created(){}
   // onShow(){}
