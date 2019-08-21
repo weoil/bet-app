@@ -1,5 +1,9 @@
 .button {
   background: none;
+  line-height: initial;
+  margin: 0;
+  color: #fff;
+  padding: 15upx 30upx;
   &::before {
     margin-right: 15upx;
   }
@@ -7,10 +11,14 @@
     border: none;
   }
   &[type='danger'] {
-    background-color: red;
+    background-color: rgb(250, 65, 32);
   }
-  &[success] {
-    color: green;
+  &[type='success'] {
+    background-color: rgb(47, 173, 231);
+  }
+  &[type='text'] {
+    display: inline-block;
+    padding: 0;
   }
 }
 .i-icon {
@@ -35,4 +43,7 @@
   to {
     transform: rotate(360deg);
   }
+}
+.placeholder-class {
+  color: #fff;
 }

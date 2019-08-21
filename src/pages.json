@@ -14,7 +14,7 @@
       }
     },
     {
-      "path": "pages/bet/create",
+      "path": "pages/bet/info",
       "style": {
         "navigationBarTitleText": "uni-app"
       }

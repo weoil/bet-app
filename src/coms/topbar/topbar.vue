@@ -6,7 +6,6 @@
         {{ title }}
       </div>
     </div>
-
     <div class="seize" :style="seizeStyle" v-if="fixed"></div>
   </div>
 </template>
@@ -56,6 +55,7 @@ export default App;
 .topbar {
   .wrapper {
     left: 0;
+    top: 0;
     display: flex;
     align-items: center;
     background: linear-gradient(120deg, rgb(192, 188, 195), rgb(174, 167, 226));
@@ -63,7 +63,7 @@ export default App;
     width: 100%;
     color: #fff;
     padding: 0 30upx;
-    z-index: 99;
+    z-index: 9;
     transform: translateY(-10px);
     .i-return {
       margin-right: 30upx;

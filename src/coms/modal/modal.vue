@@ -1,6 +1,12 @@
 <template>
-  <div class="i-modal" v-if="show" :class="{ visible: status }">
-    <div class="wrapper">
+  <div
+    class="i-modal"
+    v-if="show"
+    :class="{ visible: visible, mask: mask }"
+    @click="onClickMask"
+    @touchmove.stop
+  >
+    <div class="wrapper" @click.stop :style="wrapperStyle">
       <div class="title">
         <slot name="title">
           {{ title }}
@@ -52,6 +58,12 @@ class App extends Vue {
   confirmText!: string;
 
   @Prop({
+    type: Number,
+    default: 600,
+  })
+  width!: number;
+
+  @Prop({
     type: Boolean,
     default: true,
   })
@@ -71,15 +83,33 @@ class App extends Vue {
 
   @Prop({
     type: Boolean,
-    default: true,
+    default: false,
   })
   mask!: boolean;
-
   show: boolean = this.status;
-  delay: number = 500;
+  visible: boolean = this.show;
+  delay: number = 300;
+
+  get wrapperStyle() {
+    return `width:${this.width}rpx;`;
+  }
   @Watch('status')
   onStatusChange(val: boolean) {
-    this.show = val;
+    if (!val) {
+      setTimeout(() => {
+        this.show = val;
+      }, this.delay);
+    } else {
+      this.show = val;
+    }
+    this.$nextTick(() => {
+      this.visible = val;
+    });
+  }
+  onClickMask() {
+    if (this.mask) {
+      this.onCancel();
+    }
   }
   onCancel() {
     this.$emit('update:status', false);
@@ -95,12 +125,55 @@ export default App;
   position: fixed;
   min-height: 100vh;
   width: 100%;
-  .wrapper{
-    transform: scale(0);
+  top: 0;
+  left: 0;
+  @include flex-center;
+  transition: background-color 0.3s;
+  z-index: 10;
+  .wrapper {
+    margin-top: -10%;
+    position: absolute;
+    padding: 20upx 30upx;
+    transform: scale(0.3);
+    transition: transform 0.3s, opacity 0.3s;
+    // overflow: hidden;
+    border-radius: 20upx;
+    opacity: 0;
+    background: linear-gradient(120deg, #1fa2ff, #12d8fa);
+    color: #fff;
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      background: inherit;
+      width: 100%;
+      height: 100%;
+      left: 0upx;
+      top: 0upx;
+      transform: scale(1, 1);
+      z-index: -1;
+      filter: blur(10upx);
+      opacity: 0.6;
+      transform-origin: 50% 50%;
+    }
+    .title {
+      font-size: 36upx;
+      text-align: center;
+      margin-bottom: 30upx;
+    }
+    .content {
+    }
+    .footer {
+      margin-top: 30upx;
+    }
   }
   &.visible {
-    .wrapper{
-
+    &.mask {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    .wrapper {
+      transform: scale(1);
+      opacity: 1;
     }
   }
 }

@@ -52,7 +52,7 @@ export default class Index extends Vue {
     this.refresh();
   }
   toCreateBet() {
-    Router.to('/pages/bet/create');
+    Router.to('/pages/bet/info');
   }
   async refresh() {
     const list = getRefElement<List>(this, 'list');
