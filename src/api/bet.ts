@@ -21,9 +21,9 @@ export interface IBetListItem {
 
 // 获取约定列表
 export async function getBetList(page: number) {
-  return get<IBetListItem[]>(
-    `/appointment/list?page=${page}&size=${20}&sort=1`,
-  );
+  return get<IBetListItem[]>(`/bet`, {
+    page,
+  });
 }
 
 // 获取约定详情

@@ -33,14 +33,14 @@ const mutations: MutationTree<Store.User.State> = {
 const actions: ActionTree<Store.User.State, any> = {
   async Login(ctx) {
     let result;
-    await Loading.show('正在登录');
+    // await Loading.show('正在登录');
     const { code } = await ApiLogin();
     if (!code) {
       throw new Error('login error');
     }
     result = await Login(code);
     ctx.commit('SET_USER', result);
-    Loading.hide();
+    // Loading.hide();
     return result;
   },
   async Author(

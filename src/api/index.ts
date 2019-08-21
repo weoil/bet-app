@@ -58,6 +58,7 @@ export async function get<T>(
   config?: IRequestConfig,
 ): Promise<T> {
   const realUrl = `${url}?${formatRouterParams(data)}`;
+  console.log(realUrl);
   const r: any = await Instance.get<T>(realUrl, config);
   return r;
 }
