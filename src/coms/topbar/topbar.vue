@@ -1,7 +1,16 @@
 <template>
   <div class="topbar">
+    <div class="background">
+      <img src="/static/image/bg-4.jpg" alt="" class="b-image">
+    </div>
     <div class="wrapper" :style="style">
-      <img class="i-icon i-return" src="/static/image/return.png" />
+      <img src="/static/image/bg-4.jpg" alt="" class="b-image">
+      <img
+        v-if="isShowBack"
+        class="i-icon i-return"
+        src="@/assets/image/return.png"
+        @click.stop="backPage"
+      />
       <div class="title">
         {{ title }}
       </div>
@@ -12,6 +21,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Router } from '../../utils/uniapi';
 const info = wx.getMenuButtonBoundingClientRect();
 @Component({
   name: 'topbar',
@@ -27,8 +37,11 @@ class App extends Vue {
     default: true,
   })
   fixed!: boolean;
+  get isShowBack() {
+    return getCurrentPages().length > 1;
+  }
   get style() {
-    let style = `height:${info.height + 20}px;padding-top:${info.top}px;`;
+    let style = `height:${info.height}px;padding-top:${info.top}px;`;
     if (this.fixed) {
       style += `position: fixed;`;
     } else {
@@ -37,14 +50,18 @@ class App extends Vue {
     return style;
   }
   get seizeStyle() {
-    let style = `height:${info.height + 10}px;`;
+    let style = `height:${info.height}px;`;
     if (this.fixed) {
       style += `padding-top:${info.top}px;`;
     }
     return style;
   }
   mounted() {
-    console.log(info);
+    const page = getCurrentPages();
+    console.log(page);
+  }
+  backPage() {
+    Router.back(-1);
   }
   // beforeMount(){}
 }
@@ -53,20 +70,46 @@ export default App;
 
 <style lang="scss" scoped>
 .topbar {
-  .wrapper {
-    left: 0;
+  .background {
+    position: fixed;
     top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: $background;
+    z-index: -1;
+  }
+  .background,.wrapper{
+    .b-image{
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -10;
+      height: 100vh;
+      width: 100vw;
+    }
+  }
+  .seize,
+  .wrapper {
+    padding-bottom: 10upx;
+  }
+  .wrapper {
+    // position: relative;
+    top: 0;
+    left: 0;
     display: flex;
     align-items: center;
-    background: linear-gradient(120deg, rgb(192, 188, 195), rgb(174, 167, 226));
+    background: $background;
     background-size: 100% 100vh;
     width: 100%;
     color: #fff;
-    padding: 0 30upx;
+    overflow: hidden;
+    // padding: 0 30upx;
     z-index: 9;
-    transform: translateY(-10px);
     .i-return {
-      margin-right: 30upx;
+      position: absolute;
+      left: 10upx;
+      z-index: 2;
     }
     .title {
       flex: 1;

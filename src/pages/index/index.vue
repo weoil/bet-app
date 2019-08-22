@@ -3,21 +3,22 @@
     <topbar></topbar>
     <div class="header">
       <div class="title">
-        <span>约定</span>
-        <span>被记录的点滴</span>
+        嘿,
+        <open-data type="userNickName"></open-data>
       </div>
     </div>
     <div class="content">
-      <div class="createBet" @click="toCreateBet">
-        打个赌
-      </div>
+      <button class="button createBet shadow-blur" @click="toCreateBet">
+        <div>新建赌约</div>
+        <span>邀请朋友一起打个赌</span>
+      </button>
       <div class="bets">
         <list :getData="getData" :query="query" ref="list">
-          <!-- <template v-slot="{ list }">
-            <div v-for="bet in list" :key="bet.id">
-              <bat-card :item="bet"></bat-card>
+          <template v-slot="{ list }">
+            <div v-for="bet in list" :key="bet._id">
+              <bet-card :item="bet"></bet-card>
             </div>
-          </template> -->
+          </template>
         </list>
       </div>
     </div>
@@ -75,6 +76,31 @@ export default class Index extends Vue {
 
 <style lang="scss" scoped>
 .index {
-  height: 200vh;
+  color: #fff;
+  padding: 0 30upx;
+  .header {
+    .title {
+      font-size: 48upx;
+      // color: #fff;
+    }
+  }
+  .content {
+    margin-top: 60upx;
+    .createBet {
+      border-radius: 20upx;
+      text-align: left;
+      background: linear-gradient(
+        90deg,
+        $danger-color,
+        lighten($danger-color, 5%)
+      );
+      display: inline-block;
+      overflow: initial;
+      span {
+        font-size: 28upx;
+        opacity: 0.8;
+      }
+    }
+  }
 }
 </style>

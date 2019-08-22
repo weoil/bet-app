@@ -6,7 +6,7 @@
     @click="onClickMask"
     @touchmove.stop
   >
-    <div class="wrapper" @click.stop :style="wrapperStyle">
+    <div class="wrapper shadow-blue" @click.stop :style="wrapperStyle">
       <div class="title">
         <slot name="title">
           {{ title }}
@@ -86,6 +86,11 @@ class App extends Vue {
     default: false,
   })
   mask!: boolean;
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  maskClose!: boolean;
   show: boolean = this.status;
   visible: boolean = this.show;
   delay: number = 300;
@@ -107,7 +112,7 @@ class App extends Vue {
     });
   }
   onClickMask() {
-    if (this.mask) {
+    if (this.maskClose) {
       this.onCancel();
     }
   }
@@ -135,29 +140,15 @@ export default App;
     position: absolute;
     padding: 20upx 30upx;
     transform: scale(0.3);
+    transform-origin: 50% 40%;
     transition: transform 0.3s, opacity 0.3s;
     // overflow: hidden;
     border-radius: 20upx;
     opacity: 0;
-    background: linear-gradient(120deg, #1fa2ff, #12d8fa);
+    background: linear-gradient(to top, #0f0c29, #302b63, #24243e);
     color: #fff;
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      background: inherit;
-      width: 100%;
-      height: 100%;
-      left: 0upx;
-      top: 0upx;
-      transform: scale(1, 1);
-      z-index: -1;
-      filter: blur(10upx);
-      opacity: 0.6;
-      transform-origin: 50% 50%;
-    }
     .title {
-      font-size: 36upx;
+      font-size: 42upx;
       text-align: center;
       margin-bottom: 30upx;
     }

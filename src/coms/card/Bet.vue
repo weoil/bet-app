@@ -1,17 +1,20 @@
 <template>
   <div class="bet-card">
-    <div class="title">
-      {{ item.title }}
+    <div class="header">
+      <div class="left">
+            <div class="title">
+      {{ item.name }}
     </div>
     <div class="intro">
       {{ item.intro }}
     </div>
-    <div class="gift">
-      {{ item.gift }}
+      </div>
+      div.rightrttryryrefeebgegtegevbjyjgjfjrjrjtj
     </div>
-    <div class="peoples">
-      <div class="people">
-        <img src="" alt="" />
+
+    <div class="users">
+      <div class="user" v-for="user in item.users" :key="user._id">
+        <img :src="user.avatar" :alt="user.name" />
       </div>
     </div>
   </div>

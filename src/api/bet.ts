@@ -1,22 +1,20 @@
-import { get } from '.';
+import { get, post } from '.';
 
 // 人员属性
 export interface IPeople {
-  id: string;
+  _id: string;
   name: string;
   avatar: string;
 }
 
 // 约定列表的item
 export interface IBetListItem {
-  id: string;
-  title: string;
+  _id: string;
+  name: string;
   date: string; // 创建时间
-  endDate: string; // 结束时间
   intro: string; // 介绍
-  participants: IPeople[]; // 参与者
-  originator: IPeople; // 发起人
-  gift: string; // 礼物/奖品
+  users: IPeople[]; // 参与者
+  initiator: IPeople; // 发起人
 }
 
 // 获取约定列表
@@ -30,4 +28,19 @@ export async function getBetList(page: number) {
 export interface IBetInfo extends IBetListItem {}
 export async function getBetInfo(appointmentId: string) {
   return get<IBetInfo>(`/appointment/${appointmentId}`);
+}
+
+// 创建Bet
+export async function createBet(
+  name: string,
+  intro: string,
+  viewPoints: string[],
+  level: number = 1,
+) {
+  return post(`/bet`, {
+    name,
+    intro,
+    viewPoints,
+    level,
+  });
 }

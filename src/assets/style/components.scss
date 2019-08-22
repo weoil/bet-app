@@ -1,3 +1,4 @@
+@import './global.scss';
 .button {
   background: none;
   line-height: initial;
@@ -45,5 +46,9 @@
   }
 }
 .placeholder-class {
-  color: #fff;
+  color: rgb(236, 235, 235);
+}
+
+.shadow-blur {
+  @include shadow-blur;
 }
