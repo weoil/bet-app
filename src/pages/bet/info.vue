@@ -30,13 +30,14 @@
         <div class=" shadow-blur">
           <span>{{ v.name }}</span>
           <span
-            v-if="!isCreate"
+            v-if="isCreate"
             class="iconfont icon-shanchu"
             @click.stop="removeViewPonit(i)"
           ></span>
+          <!-- 已选择 -->
           <span
             v-else
-            class="iconfont icon-shanchu"
+            class="iconfont icon-dui"
             @click.stop="removeViewPonit(i)"
           ></span>
         </div>
@@ -167,9 +168,16 @@ export default class App extends Tool {
     const val = this.vpModal.value;
     const ind = this.vpModal.index;
     if (ind === -1) {
+      if (!val) {
+        return;
+      }
       this.viewPoints.push({ name: val, _id: '', participate: [] });
     } else {
-      this.viewPoints[ind].name = val;
+      if (!val) {
+        this.removeViewPonit(ind);
+      } else {
+        this.viewPoints[ind].name = val;
+      }
     }
     this.vpModal = {
       status: false,
@@ -218,7 +226,10 @@ export default class App extends Tool {
   @Loading('')
   async onAuthor(e: any) {
     await this.$store.dispatch('Author', e);
-    await this.createBet();
+    let r: any = await this.createBet();
+    if (r) {
+      return;
+    }
     this.$store.commit('setIndexRefreshState', true);
     Router.back(-1);
     // console.log(e);

@@ -58,6 +58,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { IToastOptions, IConfirmOptions } from '@/mixins/tool';
 @Component({
   name: 'i-modal',
 })
@@ -238,12 +239,7 @@ class App extends Vue {
       promise.reject = reject;
     });
   }
-  Toast(options: {
-    message: string;
-    mask?: boolean;
-    delay?: number;
-    loading?: boolean;
-  }) {
+  Toast(options: IToastOptions) {
     const defaultOpts = {
       message: '',
       mask: true,
@@ -260,15 +256,7 @@ class App extends Vue {
       this.setShow(false);
     }, opts.delay);
   }
-  Confirm(options: {
-    title: string;
-    message: string;
-    isShowConfirm?: boolean;
-    isShowCancel?: boolean;
-    useIcon?: boolean;
-    confirmText?: string;
-    cancelText?: string;
-  }) {
+  Confirm(options: IConfirmOptions) {
     const sp = this.scopeOptions;
     const defaultOpts = {
       message: '',

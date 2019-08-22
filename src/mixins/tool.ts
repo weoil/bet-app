@@ -28,13 +28,24 @@ export function findComponent<T extends Vue>(
   }
   return null;
 }
+
+export interface IToastOptions {
+  message: string;
+  mask?: boolean;
+  delay?: number;
+  loading?: boolean;
+}
+export interface IConfirmOptions {
+  title: string;
+  message: string;
+  isShowConfirm?: boolean;
+  isShowCancel?: boolean;
+  useIcon?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+}
 export class Tool extends Vue {
-  $Toast(options: {
-    message: string;
-    mask?: boolean;
-    delay?: number;
-    loading?: boolean;
-  }) {
+  $Toast(options: IToastOptions) {
     const modal = findComponent<any>(this, 'i-modal', {
       scope: true,
     });
@@ -43,15 +54,7 @@ export class Tool extends Vue {
     }
     return modal.Toast(options);
   }
-  $Confirm(options: {
-    title: string;
-    message: string;
-    isShowConfirm?: boolean;
-    isShowCancel?: boolean;
-    useIcon?: boolean;
-    confirmText?: string;
-    cancelText?: string;
-  }) {
+  $Confirm(options: IConfirmOptions) {
     const modal = findComponent<any>(this, 'i-modal', {
       scope: true,
     });
