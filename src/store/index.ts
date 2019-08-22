@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import User from './modules/user';
+import Tool from './modules/tool';
 Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
@@ -9,5 +10,6 @@ export default new Vuex.Store({
   mutations: {},
   modules: {
     user: User,
+    tool: Tool,
   },
 });

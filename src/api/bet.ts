@@ -10,11 +10,17 @@ export interface IPeople {
 // 约定列表的item
 export interface IBetListItem {
   _id: string;
-  name: string;
+  name: string; // 标题
   date: string; // 创建时间
   intro: string; // 介绍
   users: IPeople[]; // 参与者
+  viewPoints: IViewPoint[]; // 观点
   initiator: IPeople; // 发起人
+}
+export interface IViewPoint {
+  _id: string;
+  name: string;
+  participate: IPeople[]; // 参与者们
 }
 
 // 获取约定列表
@@ -27,14 +33,14 @@ export async function getBetList(page: number) {
 // 获取约定详情
 export interface IBetInfo extends IBetListItem {}
 export async function getBetInfo(appointmentId: string) {
-  return get<IBetInfo>(`/appointment/${appointmentId}`);
+  return get<IBetInfo>(`/bet/${appointmentId}`);
 }
 
 // 创建Bet
 export async function createBet(
   name: string,
   intro: string,
-  viewPoints: string[],
+  viewPoints: IViewPoint[],
   level: number = 1,
 ) {
   return post(`/bet`, {

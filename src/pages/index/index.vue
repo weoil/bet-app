@@ -15,7 +15,7 @@
       <div class="bets">
         <list :getData="getData" :query="query" ref="list">
           <template v-slot="{ list }">
-            <div v-for="bet in list" :key="bet._id">
+            <div v-for="bet in list" :key="bet._id" class="bet-item">
               <bet-card :item="bet"></bet-card>
             </div>
           </template>
@@ -36,6 +36,7 @@ import { getRefElement } from '../../utils';
 import { Author } from '../../api/user';
 import IModal from '@/coms/modal/modal.vue';
 import { Router } from '../../utils/uniapi';
+import { State } from 'vuex-class';
 @Component({
   name: 'Index',
   components: {
@@ -45,6 +46,8 @@ import { Router } from '../../utils/uniapi';
   },
 })
 export default class Index extends Vue {
+  @State('tool')
+  tool!: Store.Tool.State;
   query: AnyObject = {};
   modal: boolean = false;
   // beforeMount(){}
@@ -67,7 +70,12 @@ export default class Index extends Vue {
     await this.$store.dispatch('Author', e);
   }
   // created(){}
-  // onShow(){}
+  onShow() {
+    if (this.tool.refresh) {
+      this.refresh();
+      this.$store.commit('setIndexRefreshState', false);
+    }
+  }
   // onHide(){}
   // onLoad(){}
   // onUnload(){}
@@ -100,6 +108,9 @@ export default class Index extends Vue {
         font-size: 28upx;
         opacity: 0.8;
       }
+    }
+    .bet-item {
+      margin-top: 40upx;
     }
   }
 }

@@ -4,6 +4,7 @@
     <div class="title">
       <input
         type="text"
+        :disabled="!isCreate"
         v-model="title"
         placeholder="请输入赌约名称"
         focus
@@ -13,6 +14,7 @@
     <div class="intro">
       <input
         type="text"
+        :disabled="!isCreate"
         v-model="intro"
         placeholder="请输入赌约描述"
         placeholder-class="placeholder-class"
@@ -26,16 +28,21 @@
         @click="modifyViewPoint(i)"
       >
         <div class=" shadow-blur">
-          <span>{{ v }}</span>
+          <span>{{ v.name }}</span>
           <span
+            v-if="!isCreate"
+            class="iconfont icon-shanchu"
+            @click.stop="removeViewPonit(i)"
+          ></span>
+          <span
+            v-else
             class="iconfont icon-shanchu"
             @click.stop="removeViewPonit(i)"
           ></span>
         </div>
       </div>
-
-      <div class="new view-point">
-        <div @click="showModal">
+      <div class="new view-point" v-if="isCreate">
+        <div @click="clickViewPoint">
           <span>创建观点</span>
           <span class="iconfont icon-shanchu"></span>
         </div>
@@ -45,6 +52,9 @@
       :title="vpModal.index === -1 ? '创建观点' : '编辑观点'"
       :status.sync="vpModal.status"
       mask
+      useIcon
+      @cancel="vpModal.status = false"
+      @confirm="createViewPoint"
     >
       <div>
         <input
@@ -56,24 +66,20 @@
           @confirm="createViewPoint"
         />
       </div>
-      <template v-slot:footer>
-        <div class="modal-footer">
-          <button class="button " type="text" @click="vpModal.status = false">
-            <i class="iconfont icon-shanchu"></i>
-          </button>
-          <button class="button " type="text" @click="createViewPoint">
-            <i class="iconfont icon-dui"></i>
-          </button>
-        </div>
-      </template>
     </i-modal>
     <seize position="bottom||right">
       <div class="done">
-        <button type="text" class="button" @click="createBet">
+        <button
+          type="text"
+          class="button"
+          open-type="getUserInfo"
+          @getuserinfo="onAuthor"
+        >
           <div class="iconfont icon-dui"></div>
         </button>
       </div>
     </seize>
+    <i-modal scope></i-modal>
   </div>
 </template>
 
@@ -81,7 +87,11 @@
 import { Vue, Component } from 'vue-property-decorator';
 import IModal from '@/coms/modal/modal.vue';
 import Seize from '@/coms/seize/seize.vue';
-import { createBet } from '../../api/bet';
+import { createBet, getBetInfo, IViewPoint } from '../../api/bet';
+import { Router } from '../../utils/uniapi';
+import { Loading, getRefElement } from '../../utils';
+import { Tool } from '@/mixins/tool';
+import { State } from 'vuex-class';
 @Component({
   name: 'bet-info',
   components: {
@@ -89,18 +99,21 @@ import { createBet } from '../../api/bet';
     Seize,
   },
 })
-export default class App extends Vue {
+export default class App extends Tool {
+  @State('user')
+  user!: Store.User.State;
   id: string = '';
   title: string = '';
   intro: string = '';
-  viewPoints: string[] = [];
+  viewPoints: IViewPoint[] = [];
+  selectViewPointId: string = '';
   vpModal = {
     status: false,
     value: '',
     index: -1,
   };
   get isCreate() {
-    return !!this.id;
+    return !this.id;
   }
   // beforeMount(){}
   // mounted(){}
@@ -108,16 +121,55 @@ export default class App extends Vue {
   // onShow(){}
   // onHide(){}
   onLoad(opts: AnyObject) {
-    this.id = opts.id || '';
+    const id = (this.id = opts.id || '');
+    if (id) {
+      this.getData();
+    }
+    setTimeout(() => {
+      this.$Toast({
+        message: 'hhh',
+      });
+      // const modal = getRefElement<IModal>(this, 'com-modal');
+      // modal
+      //   .Confirm({
+      //     title: '嘿',
+      //     message: '你好',
+      //   })
+      //   .then(() => {
+      //     console.log('ok');
+      //   })
+      //   .catch(() => {
+      //     console.log('no');
+      //   });
+    }, 1000);
   }
   // onUnload(){}
+  @Loading('加载中')
+  async getData() {
+    const result = await getBetInfo(this.id);
+    this.title = result.name;
+    this.intro = result.intro;
+    this.viewPoints = result.viewPoints;
+    this.findSelectViewPoint();
+  }
+  // 查找已经选择的观点
+  findSelectViewPoint() {
+    for (const v of this.viewPoints) {
+      for (const u of v.participate) {
+        if (u._id === this.user.id) {
+          this.selectViewPointId = v._id;
+          return;
+        }
+      }
+    }
+  }
   createViewPoint() {
     const val = this.vpModal.value;
     const ind = this.vpModal.index;
     if (ind === -1) {
-      this.viewPoints.push(val);
+      this.viewPoints.push({ name: val, _id: '', participate: [] });
     } else {
-      this.viewPoints[ind] = val;
+      this.viewPoints[ind].name = val;
     }
     this.vpModal = {
       status: false,
@@ -128,14 +180,20 @@ export default class App extends Vue {
   modifyViewPoint(index: number) {
     this.vpModal = {
       status: true,
-      value: this.viewPoints[index],
+      value: this.viewPoints[index].name,
       index,
     };
   }
   removeViewPonit(index: number) {
     this.viewPoints.splice(index, 1);
   }
-  showModal() {
+  clickViewPoint() {
+    if (!this.isCreate) {
+      if (!this.selectViewPointId) {
+        // 提示选择观点
+      }
+      return;
+    }
     this.vpModal = {
       status: true,
       value: '',
@@ -156,6 +214,14 @@ export default class App extends Vue {
       });
     }
     await createBet(this.title, this.intro, this.viewPoints, 1);
+  }
+  @Loading('')
+  async onAuthor(e: any) {
+    await this.$store.dispatch('Author', e);
+    await this.createBet();
+    this.$store.commit('setIndexRefreshState', true);
+    Router.back(-1);
+    // console.log(e);
   }
 }
 </script>
@@ -190,10 +256,11 @@ export default class App extends Vue {
       div {
         position: relative;
         display: inline-block;
-        padding: 15upx 80upx 15upx 30upx;
+        padding: 30upx 80upx 30upx 30upx;
         border-radius: 20upx;
-        font-size: 32upx;
-        background: linear-gradient(to bottom, #8f94fb, #4e54c8);
+        font-size: 38upx;
+        // background: linear-gradient(to right, #ff5f6d, #ffc371);
+        background: linear-gradient(to bottom, #606c88, #3f4c6b);
         .iconfont {
           position: absolute;
           padding: 20upx;
@@ -216,17 +283,17 @@ export default class App extends Vue {
       margin-top: 30upx;
     }
   }
-  .modal-footer {
-    @include flex-center;
-    justify-content: space-between;
-    .iconfont {
-      font-size: 48upx;
-    }
-    .button {
-      color: #fff;
-      overflow: initial;
-    }
-  }
+  // .modal-footer {
+  //   @include flex-center;
+  //   justify-content: space-between;
+  //   .iconfont {
+  //     font-size: 48upx;
+  //   }
+  //   .button {
+  //     color: #fff;
+  //     overflow: initial;
+  //   }
+  // }
   .done {
     @include flex-center;
     @include shadow-blur('left');

@@ -56,7 +56,7 @@ const actions: ActionTree<Store.User.State, any> = {
     commit('SET_USER', {
       info: result,
       id: state.id,
-      token: state.id,
+      token: state.token,
     });
     // if (!iv || !encryptedData || !sessionKey) {
     //   throw new Error();

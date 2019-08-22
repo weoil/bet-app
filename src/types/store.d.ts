@@ -22,4 +22,9 @@ declare namespace Store {
       info: Info;
     }
   }
+  export namespace Tool {
+    export interface State {
+      refresh: boolean;
+    }
+  }
 }
