@@ -15,9 +15,10 @@
     </div>
 
     <div class="users">
-      <div class="user" v-for="user in item.users" :key="user._id">
+      <div class="user" v-for="user in users" :key="user._id">
         <img :src="user.avatar" :alt="user.name" />
       </div>
+      <div v-if="isMoreUser" class="more-user">...</div>
     </div>
   </div>
 </template>
@@ -33,8 +34,24 @@ import { Router } from '../../utils/uniapi';
 export default class App extends Vue {
   @Prop()
   item!: IBetInfo;
-  // beforeMount(){}
-  // mounted(){}
+
+  isMoreUser: boolean = false;
+  get users() {
+    const us = this.item.users;
+    const n = [];
+    if (us.length) {
+      for (let i = 0; i < 11; i++) {
+        n.push(us[0]);
+      }
+    }
+    this.isMoreUser = n.length > 10;
+    if (this.isMoreUser) {
+      return n.slice(0, 10);
+    }
+    return n;
+  }
+  // beforeMount() {}
+  // mounted() {}
   // created(){}
   // onShow(){}
   // onHide(){}
@@ -51,7 +68,7 @@ export default class App extends Vue {
 <style lang="scss" scoped>
 .bet-card {
   display: inline-block;
-  padding: 20upx 30upx 20upx;
+  padding: 20upx 30upx 10upx 30upx;
   border-radius: 10upx;
   background: linear-gradient(
     120deg,
@@ -72,13 +89,32 @@ export default class App extends Vue {
       }
     }
     .right {
-      margin-left: 20upx;
+      margin-left: 40upx;
       flex-shrink: 0;
       img {
         width: 80upx;
         height: 80upx;
         border-radius: 50%;
       }
+    }
+  }
+  .users {
+    margin-top: 20upx;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    .user {
+      margin-right: 10upx;
+      margin-bottom: 10upx;
+      width: 50upx;
+      height: 50upx;
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+    }
+    .more-user {
     }
   }
 }

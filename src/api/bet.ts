@@ -50,3 +50,10 @@ export async function createBet(
     level,
   });
 }
+
+// 选择观点
+export async function selectViewPoint(viewPointId: string) {
+  return post(`/bet/participate`, {
+    id: viewPointId,
+  });
+}

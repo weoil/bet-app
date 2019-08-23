@@ -349,7 +349,7 @@ export default App;
     border-radius: 10upx;
   }
   .confirm {
-    width: 400upx;
+    width: 500upx;
   }
 }
 </style>

@@ -23,9 +23,12 @@
     <div class="view-points">
       <div
         class="view-point"
+        :class="{
+          'no-select': selectViewPointId && selectViewPointId !== v._id,
+        }"
         v-for="(v, i) in viewPoints"
         :key="v"
-        @click="modifyViewPoint(i)"
+        @click="clickViewPoint(i, v)"
       >
         <div class=" shadow-blur">
           <span>{{ v.name }}</span>
@@ -36,14 +39,17 @@
           ></span>
           <!-- 已选择 -->
           <span
-            v-else
-            class="iconfont icon-dui"
-            @click.stop="removeViewPonit(i)"
+            v-else-if="selectViewPointId && selectViewPointId === v._id"
+            class="iconfont icon-success1f"
+          ></span>
+          <span
+            v-else-if="!selectViewPointId"
+            class="iconfont icon-Left"
           ></span>
         </div>
       </div>
       <div class="new view-point" v-if="isCreate">
-        <div @click="clickViewPoint">
+        <div @click="clickAddViewPoint">
           <span>创建观点</span>
           <span class="iconfont icon-shanchu"></span>
         </div>
@@ -88,7 +94,12 @@
 import { Vue, Component } from 'vue-property-decorator';
 import IModal from '@/coms/modal/modal.vue';
 import Seize from '@/coms/seize/seize.vue';
-import { createBet, getBetInfo, IViewPoint } from '../../api/bet';
+import {
+  createBet,
+  getBetInfo,
+  IViewPoint,
+  selectViewPoint,
+} from '../../api/bet';
 import { Router } from '../../utils/uniapi';
 import { Loading, getRefElement } from '../../utils';
 import { Tool } from '@/mixins/tool';
@@ -126,23 +137,6 @@ export default class App extends Tool {
     if (id) {
       this.getData();
     }
-    setTimeout(() => {
-      this.$Toast({
-        message: 'hhh',
-      });
-      // const modal = getRefElement<IModal>(this, 'com-modal');
-      // modal
-      //   .Confirm({
-      //     title: '嘿',
-      //     message: '你好',
-      //   })
-      //   .then(() => {
-      //     console.log('ok');
-      //   })
-      //   .catch(() => {
-      //     console.log('no');
-      //   });
-    }, 1000);
   }
   // onUnload(){}
   @Loading('加载中')
@@ -185,6 +179,22 @@ export default class App extends Tool {
       index: -1,
     };
   }
+  async selectViewPoint(index: number) {
+    const vp = this.viewPoints[index];
+    await this.$Confirm({
+      title: '选择观点',
+      message: `${vp.name}`,
+    });
+    await selectViewPoint(vp._id);
+    this.selectViewPointId = vp._id;
+  }
+  clickViewPoint(index: number, item: IViewPoint) {
+    if (this.isCreate) {
+      this.modifyViewPoint(index);
+    } else if (!this.selectViewPointId) {
+      this.selectViewPoint(index);
+    }
+  }
   modifyViewPoint(index: number) {
     this.vpModal = {
       status: true,
@@ -195,7 +205,7 @@ export default class App extends Tool {
   removeViewPonit(index: number) {
     this.viewPoints.splice(index, 1);
   }
-  clickViewPoint() {
+  clickAddViewPoint() {
     if (!this.isCreate) {
       if (!this.selectViewPointId) {
         // 提示选择观点
@@ -287,6 +297,11 @@ export default class App extends Tool {
         .iconfont {
           right: 30upx;
           transform: rotate(45deg) translate(0, -60%);
+        }
+      }
+      &.no-select {
+        div {
+          padding: 30upx;
         }
       }
     }

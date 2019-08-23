@@ -26,24 +26,29 @@ export default class App extends Vue {
   user!: Store.User.State;
   async middle(scene: string = '') {
     // 没登录去登陆
-    if (!this.user.token) {
-      await this.$store.dispatch('Login');
+    try {
+      if (!this.user.token) {
+        await this.$store.dispatch('Login');
+      }
+      const sceneObj = scene2Obj(scene);
+      const route = target2Path(sceneObj.target, sceneObj.detail);
+      // 路由不是通用路由,并且不包含目前用户身份
+      if (
+        !route.roles.includes(Identity.Any) &&
+        !route.roles.includes(this.user.info.identity)
+      ) {
+        throw new Error('identity');
+      }
+      // 页面是否为关闭当前页
+      if (route.replace) {
+        Router.reLaunch(route.path, route.detail);
+      } else {
+        Router.to(route.path, route.detail);
+      }
+    } finally {
+      this.loaded = false;
     }
-    const sceneObj = scene2Obj(scene);
-    const route = target2Path(sceneObj.target, sceneObj.detail);
-    // 路由不是通用路由,并且不包含目前用户身份
-    if (
-      !route.roles.includes(Identity.Any) &&
-      !route.roles.includes(this.user.info.identity)
-    ) {
-      throw new Error('identity');
-    }
-    // 页面是否为关闭当前页
-    if (route.replace) {
-      Router.reLaunch(route.path, route.detail);
-    } else {
-      Router.to(route.path, route.detail);
-    }
+
     //
   }
   // beforeMount(){}
@@ -55,9 +60,6 @@ export default class App extends Vue {
     this.loaded = true;
     const scene = decodeURIComponent(options.scene || '');
     this.middle(scene);
-    this.$nextTick(() => {
-      this.loaded = false;
-    });
   }
   onShow() {
     if (this.loaded) {
