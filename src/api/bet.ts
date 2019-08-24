@@ -16,11 +16,15 @@ export interface IBetListItem {
   users: IPeople[]; // 参与者
   viewPoints: IViewPoint[]; // 观点
   initiator: IPeople; // 发起人
+  player: IPlayer[]; // 参与人
+}
+export interface IPlayer {
+  customerId: string;
+  viewPointId: string;
 }
 export interface IViewPoint {
   _id: string;
   name: string;
-  participate: IPeople[]; // 参与者们
 }
 
 // 获取约定列表
@@ -52,8 +56,9 @@ export async function createBet(
 }
 
 // 选择观点
-export async function selectViewPoint(viewPointId: string) {
+export async function selectViewPoint(betId: string, viewPointId: string) {
   return post(`/bet/participate`, {
-    id: viewPointId,
+    id: betId,
+    viewPointId,
   });
 }

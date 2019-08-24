@@ -27,7 +27,7 @@
           'no-select': selectViewPointId && selectViewPointId !== v._id,
         }"
         v-for="(v, i) in viewPoints"
-        :key="v"
+        :key="v._id"
         @click="clickViewPoint(i, v)"
       >
         <div class=" shadow-blur">
@@ -74,18 +74,21 @@
         />
       </div>
     </i-modal>
-    <seize position="bottom||right">
-      <div class="done">
-        <button
-          type="text"
-          class="button"
-          open-type="getUserInfo"
-          @getuserinfo="onAuthor"
-        >
-          <div class="iconfont icon-dui"></div>
-        </button>
-      </div>
-    </seize>
+    <template v-if="isCreate">
+      <seize position="bottom||right">
+        <div class="done">
+          <button
+            type="text"
+            class="button"
+            open-type="getUserInfo"
+            @getuserinfo="onAuthor"
+          >
+            <div class="iconfont icon-dui"></div>
+          </button>
+        </div>
+      </seize>
+    </template>
+
     <i-modal scope></i-modal>
   </div>
 </template>
@@ -99,6 +102,7 @@ import {
   getBetInfo,
   IViewPoint,
   selectViewPoint,
+  IPlayer,
 } from '../../api/bet';
 import { Router } from '../../utils/uniapi';
 import { Loading, getRefElement } from '../../utils';
@@ -118,6 +122,7 @@ export default class App extends Tool {
   title: string = '';
   intro: string = '';
   viewPoints: IViewPoint[] = [];
+  players: IPlayer[] = [];
   selectViewPointId: string = '';
   vpModal = {
     status: false,
@@ -126,6 +131,12 @@ export default class App extends Tool {
   };
   get isCreate() {
     return !this.id;
+  }
+  get playerMapViewPoint(): { [key: string]: IPlayer } {
+    return this.players.reduce((obj: { [key: string]: IPlayer }, player) => {
+      obj[player.viewPointId] = player;
+      return obj;
+    }, {});
   }
   // beforeMount(){}
   // mounted(){}
@@ -145,16 +156,16 @@ export default class App extends Tool {
     this.title = result.name;
     this.intro = result.intro;
     this.viewPoints = result.viewPoints;
+    this.players = result.player;
     this.findSelectViewPoint();
   }
   // 查找已经选择的观点
   findSelectViewPoint() {
     for (const v of this.viewPoints) {
-      for (const u of v.participate) {
-        if (u._id === this.user.id) {
-          this.selectViewPointId = v._id;
-          return;
-        }
+      const player = this.playerMapViewPoint[v._id];
+      if (player && player.customerId === this.user.id) {
+        this.selectViewPointId = v._id;
+        break;
       }
     }
   }
@@ -165,7 +176,7 @@ export default class App extends Tool {
       if (!val) {
         return;
       }
-      this.viewPoints.push({ name: val, _id: '', participate: [] });
+      this.viewPoints.push({ name: val, _id: '' });
     } else {
       if (!val) {
         this.removeViewPonit(ind);
@@ -185,7 +196,7 @@ export default class App extends Tool {
       title: '选择观点',
       message: `${vp.name}`,
     });
-    await selectViewPoint(vp._id);
+    await selectViewPoint(this.id, vp._id);
     this.selectViewPointId = vp._id;
   }
   clickViewPoint(index: number, item: IViewPoint) {
