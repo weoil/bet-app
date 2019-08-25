@@ -38,17 +38,11 @@ export default class App extends Vue {
   isMoreUser: boolean = false;
   get users() {
     const us = this.item.users;
-    const n = [];
-    if (us.length) {
-      for (let i = 0; i < 11; i++) {
-        n.push(us[0]);
-      }
-    }
-    this.isMoreUser = n.length > 10;
+    this.isMoreUser = us.length > 10;
     if (this.isMoreUser) {
-      return n.slice(0, 10);
+      return us.slice(0, 10);
     }
-    return n;
+    return us;
   }
   // beforeMount() {}
   // mounted() {}

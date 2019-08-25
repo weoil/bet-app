@@ -59,6 +59,10 @@ export function target2Path(target: number = 0, detail: string[]) {
       map.path = `/pages/index/index`;
       map.roles = [Any];
       break;
+    case 1:
+      map.path = `/pages/bet/info`;
+      map.detail = { id: detail[0] };
+      map.replace = false;
   }
   return map;
 }

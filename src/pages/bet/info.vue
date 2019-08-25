@@ -28,9 +28,13 @@
         }"
         v-for="(v, i) in viewPoints"
         :key="v._id"
-        @click="clickViewPoint(i, v)"
       >
-        <div class=" shadow-blur">
+        <button
+          class="button shadow-blur"
+          @click="clickViewPoint(i, v)"
+          open-type="getUserInfo"
+          @getuserinfo="onAuthor($event, 'clickViewPoint', i, v)"
+        >
           <span>{{ v.name }}</span>
           <span
             v-if="isCreate"
@@ -46,13 +50,13 @@
             v-else-if="!selectViewPointId"
             class="iconfont icon-Left"
           ></span>
-        </div>
+        </button>
       </div>
       <div class="new view-point" v-if="isCreate">
-        <div @click="clickAddViewPoint">
+        <button class="button" @click="clickAddViewPoint">
           <span>创建观点</span>
           <span class="iconfont icon-shanchu"></span>
-        </div>
+        </button>
       </div>
     </div>
     <i-modal
@@ -81,7 +85,8 @@
             type="text"
             class="button"
             open-type="getUserInfo"
-            @getuserinfo="onAuthor"
+            @click="createBet"
+            @getuserinfo="onAuthor($event, 'create')"
           >
             <div class="iconfont icon-dui"></div>
           </button>
@@ -147,7 +152,15 @@ export default class App extends Tool {
     const id = (this.id = opts.id || '');
     if (id) {
       this.getData();
+    } else {
+      uni.hideShareMenu();
     }
+  }
+  onShareAppMessage() {
+    return {
+      title: `${this.title}`,
+      path: `/pages/middle/index?scene=1:0:(${this.id})`,
+    };
   }
   // onUnload(){}
   @Loading('加载中')
@@ -198,6 +211,8 @@ export default class App extends Tool {
     });
     await selectViewPoint(this.id, vp._id);
     this.selectViewPointId = vp._id;
+    uni.hideLoading();
+    this.$store.commit('setIndexRefreshState', true);
   }
   clickViewPoint(index: number, item: IViewPoint) {
     if (this.isCreate) {
@@ -230,6 +245,9 @@ export default class App extends Tool {
     };
   }
   async createBet() {
+    if (!this.user.info.isAuthor) {
+      return;
+    }
     if (!this.title) {
       return uni.showToast({
         title: '请输入名称~',
@@ -243,16 +261,22 @@ export default class App extends Tool {
       });
     }
     await createBet(this.title, this.intro, this.viewPoints, 1);
-  }
-  @Loading('')
-  async onAuthor(e: any) {
-    await this.$store.dispatch('Author', e);
-    let r: any = await this.createBet();
-    if (r) {
-      return;
-    }
     this.$store.commit('setIndexRefreshState', true);
     Router.back(-1);
+    uni.hideLoading();
+  }
+  async onAuthor(e: any, type: string = 'create', ...args: any[]) {
+    if (this.user.info.isAuthor) {
+      return;
+    }
+    uni.showLoading();
+    await this.$store.dispatch('Author', e);
+    switch (type) {
+      case 'create':
+        return await this.createBet();
+      case 'clickViewPoint':
+        return await this.clickViewPoint(args[0], args[1]);
+    }
     // console.log(e);
   }
 }
@@ -285,7 +309,8 @@ export default class App extends Tool {
     }
     .view-point {
       color: #fff;
-      div {
+      .button {
+        text-align: left;
         position: relative;
         display: inline-block;
         padding: 30upx 80upx 30upx 30upx;
@@ -302,7 +327,7 @@ export default class App extends Tool {
         }
       }
       &.new {
-        div {
+        .button {
           background: linear-gradient(to top, #ff5e62, #ff9966);
         }
         .iconfont {
