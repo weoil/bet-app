@@ -61,13 +61,13 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 .bet-card {
-  display: inline-block;
+  display: block;
   padding: 20upx 30upx 10upx 30upx;
   border-radius: 10upx;
   background: linear-gradient(
     120deg,
-    rgba(61, 95, 193, 1),
-    rgba(63, 159, 233, 1)
+    rgba(61, 95, 193, 0.3),
+    rgba(63, 159, 233, 0.5)
   );
   .header {
     @include flex-center;

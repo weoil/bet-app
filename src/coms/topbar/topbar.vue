@@ -1,10 +1,10 @@
 <template>
   <div class="topbar">
     <div class="background">
-      <img src="/static/image/bg-4.jpg" alt="" class="b-image">
+      <!-- <img src="/static/image/bg-4.jpg" alt="" class="b-image"> -->
     </div>
     <div class="wrapper" :style="style">
-      <img src="/static/image/bg-4.jpg" alt="" class="b-image">
+      <!-- <img src="/static/image/bg-4.jpg" alt="" class="b-image"> -->
       <img
         v-if="isShowBack"
         class="i-icon i-return"

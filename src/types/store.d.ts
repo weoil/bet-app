@@ -25,6 +25,7 @@ declare namespace Store {
   export namespace Tool {
     export interface State {
       refresh: boolean;
+      cache: any;
     }
   }
 }

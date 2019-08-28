@@ -21,6 +21,7 @@ export interface IBetListItem {
 export interface IPlayer {
   customerId: string;
   viewPointId: string;
+  user: IPeople;
 }
 export interface IViewPoint {
   _id: string;

@@ -2,23 +2,45 @@
   <div class="bet-info">
     <topbar title="创建赌约"></topbar>
     <div class="title">
-      <input
-        type="text"
+      <textarea
+        @click.stop
+        @blur="offEdit"
+        v-if="isEditTitle"
         :disabled="!isCreate"
         v-model="title"
+        auto-height
         placeholder="请输入赌约名称"
         focus
         placeholder-class="placeholder-class"
-      />
+      ></textarea>
+      <text v-else @click.stop="toEdit('title')">
+        <template v-if="title">
+          {{ title }}
+        </template>
+        <template v-else>
+          {{ isCreate ? '请输入赌约名称' : '' }}
+        </template>
+      </text>
     </div>
     <div class="intro">
-      <input
-        type="text"
+      <textarea
+        @click.stop
+        @blur="offEdit"
+        v-if="isEditIntro"
         :disabled="!isCreate"
         v-model="intro"
+        auto-height
         placeholder="请输入赌约描述"
         placeholder-class="placeholder-class"
-      />
+      ></textarea>
+      <text v-else @click.stop="toEdit('intro')">
+        <template v-if="intro">
+          {{ intro }}
+        </template>
+        <template v-else>
+          {{ isCreate ? '请输入赌约描述' : '' }}
+        </template>
+      </text>
     </div>
     <div class="view-points">
       <div
@@ -29,33 +51,22 @@
         v-for="(v, i) in viewPoints"
         :key="v._id"
       >
-        <button
-          class="button shadow-blur"
-          @click="clickViewPoint(i, v)"
-          open-type="getUserInfo"
-          @getuserinfo="onAuthor($event, 'clickViewPoint', i, v)"
+        <view-point-card
+          :item="v"
+          :edit="isCreate"
+          :selected="selectViewPointId && selectViewPointId === v._id"
+          :isSelect="!isCreate && !selectViewPointId"
+          @author="onAuthor"
+          @select="selectViewPoint(i)"
+          @edit="modifyViewPoint(i)"
+          @remove="removeViewPoint(i)"
+          @view="viewViewPoint(i)"
         >
-          <span>{{ v.name }}</span>
-          <span
-            v-if="isCreate"
-            class="iconfont icon-shanchu"
-            @click.stop="removeViewPonit(i)"
-          ></span>
-          <!-- 已选择 -->
-          <span
-            v-else-if="selectViewPointId && selectViewPointId === v._id"
-            class="iconfont icon-success1f"
-          ></span>
-          <span
-            v-else-if="!selectViewPointId"
-            class="iconfont icon-Left"
-          ></span>
-        </button>
+        </view-point-card>
       </div>
       <div class="new view-point" v-if="isCreate">
         <button class="button" @click="clickAddViewPoint">
           <span>创建观点</span>
-          <span class="iconfont icon-shanchu"></span>
         </button>
       </div>
     </div>
@@ -100,6 +111,7 @@
 
 <script lang='ts'>
 import { Vue, Component } from 'vue-property-decorator';
+import ViewPointCard from './modules/viewpoint-card.vue';
 import IModal from '@/coms/modal/modal.vue';
 import Seize from '@/coms/seize/seize.vue';
 import {
@@ -108,27 +120,35 @@ import {
   IViewPoint,
   selectViewPoint,
   IPlayer,
+  IPeople,
 } from '../../api/bet';
 import { Router } from '../../utils/uniapi';
 import { Loading, getRefElement } from '../../utils';
 import { Tool } from '@/mixins/tool';
-import { State } from 'vuex-class';
+import { State, Mutation } from 'vuex-class';
 @Component({
   name: 'bet-info',
   components: {
     IModal,
     Seize,
+    ViewPointCard,
   },
 })
 export default class App extends Tool {
   @State('user')
   user!: Store.User.State;
+
+  @Mutation('setCache')
+  setCache!: any;
+
   id: string = '';
   title: string = '';
   intro: string = '';
   viewPoints: IViewPoint[] = [];
   players: IPlayer[] = [];
   selectViewPointId: string = '';
+  isEditTitle: boolean = false;
+  isEditIntro: boolean = false;
   vpModal = {
     status: false,
     value: '',
@@ -137,9 +157,17 @@ export default class App extends Tool {
   get isCreate() {
     return !this.id;
   }
-  get playerMapViewPoint(): { [key: string]: IPlayer } {
-    return this.players.reduce((obj: { [key: string]: IPlayer }, player) => {
-      obj[player.viewPointId] = player;
+  // {观点:[用户]}
+  get playerMapViewPoint(): { [key: string]: IPeople[] } {
+    return this.players.reduce((obj: { [key: string]: IPeople[] }, player) => {
+      let list = obj[player.viewPointId];
+      if (!list) {
+        list = obj[player.viewPointId] = [];
+      }
+      list.push(player.user);
+      if (player.customerId === this.user.id) {
+        this.selectViewPointId = player.viewPointId;
+      }
       return obj;
     }, {});
   }
@@ -170,17 +198,18 @@ export default class App extends Tool {
     this.intro = result.intro;
     this.viewPoints = result.viewPoints;
     this.players = result.player;
-    this.findSelectViewPoint();
   }
-  // 查找已经选择的观点
-  findSelectViewPoint() {
-    for (const v of this.viewPoints) {
-      const player = this.playerMapViewPoint[v._id];
-      if (player && player.customerId === this.user.id) {
-        this.selectViewPointId = v._id;
-        break;
-      }
+  toEdit(type = 'title') {
+    switch (type) {
+      case 'title':
+        return (this.isEditTitle = true);
+      case 'intro':
+        return (this.isEditIntro = true);
     }
+  }
+  offEdit() {
+    this.isEditTitle = false;
+    this.isEditIntro = false;
   }
   createViewPoint() {
     const val = this.vpModal.value;
@@ -192,7 +221,7 @@ export default class App extends Tool {
       this.viewPoints.push({ name: val, _id: '' });
     } else {
       if (!val) {
-        this.removeViewPonit(ind);
+        this.removeViewPoint(ind);
       } else {
         this.viewPoints[ind].name = val;
       }
@@ -204,6 +233,7 @@ export default class App extends Tool {
     };
   }
   async selectViewPoint(index: number) {
+    this.offEdit();
     const vp = this.viewPoints[index];
     await this.$Confirm({
       title: '选择观点',
@@ -222,16 +252,31 @@ export default class App extends Tool {
     }
   }
   modifyViewPoint(index: number) {
+    this.offEdit();
     this.vpModal = {
       status: true,
       value: this.viewPoints[index].name,
       index,
     };
   }
-  removeViewPonit(index: number) {
+  viewViewPoint(index: number) {
+    const item = this.viewPoints[index];
+    const users = this.playerMapViewPoint[item._id];
+    console.log(users);
+    this.setCache({
+      name: item.name,
+      users,
+    });
+    Router.to(`/pages/bet/viewpoint`);
+    console.log(index);
+  }
+  removeViewPoint(index: number) {
+    this.offEdit();
+    console.log(index);
     this.viewPoints.splice(index, 1);
   }
   clickAddViewPoint() {
+    this.offEdit();
     if (!this.isCreate) {
       if (!this.selectViewPointId) {
         // 提示选择观点
@@ -265,7 +310,7 @@ export default class App extends Tool {
     Router.back(-1);
     uni.hideLoading();
   }
-  async onAuthor(e: any, type: string = 'create', ...args: any[]) {
+  async onAuthor(e: any, type: string = '', ...args: any[]) {
     if (this.user.info.isAuthor) {
       return;
     }
@@ -285,8 +330,24 @@ export default class App extends Tool {
 <style lang="scss" scoped>
 .bet-info {
   input,
-  textarea {
+  textarea,
+  text {
+    min-height: 33px;
     color: #fff;
+    line-height: 1;
+    word-break: break-all;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  textarea {
+    padding-top: 5upx;
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+  text {
   }
   padding: 0upx 30upx 0;
   .title {
@@ -309,26 +370,10 @@ export default class App extends Tool {
     }
     .view-point {
       color: #fff;
-      .button {
-        text-align: left;
-        position: relative;
-        display: inline-block;
-        padding: 30upx 80upx 30upx 30upx;
-        border-radius: 20upx;
-        font-size: 38upx;
-        // background: linear-gradient(to right, #ff5f6d, #ffc371);
-        background: linear-gradient(to bottom, #606c88, #3f4c6b);
-        .iconfont {
-          position: absolute;
-          padding: 20upx;
-          right: 0upx;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-      }
+
       &.new {
         .button {
-          background: linear-gradient(to top, #ff5e62, #ff9966);
+          background: #eece19;
         }
         .iconfont {
           right: 30upx;
@@ -336,7 +381,7 @@ export default class App extends Tool {
         }
       }
       &.no-select {
-        div {
+        .vp-item {
           padding: 30upx;
         }
       }
