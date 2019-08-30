@@ -74,6 +74,8 @@ export default class App extends Vue {
     justify-content: space-between;
     .left {
       flex-grow: 1;
+      overflow: hidden;
+      word-break: break-all;
       .title {
         font-size: 36upx;
       }

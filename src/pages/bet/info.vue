@@ -3,14 +3,14 @@
     <topbar title="创建赌约"></topbar>
     <div class="title">
       <textarea
-        @click.stop
+        @click.stop="toEdit('title')"
         @blur="offEdit"
+        :focus="isEditTitle"
         v-if="isEditTitle"
         :disabled="!isCreate"
         v-model="title"
         auto-height
         placeholder="请输入赌约名称"
-        focus
         placeholder-class="placeholder-class"
       ></textarea>
       <text v-else @click.stop="toEdit('title')">
@@ -24,8 +24,9 @@
     </div>
     <div class="intro">
       <textarea
-        @click.stop
+        @click.stop="toEdit('intro')"
         @blur="offEdit"
+        :focus="isEditIntro"
         v-if="isEditIntro"
         :disabled="!isCreate"
         v-model="intro"
@@ -80,8 +81,8 @@
     >
       <div>
         <input
+          v-show="vpModal.status"
           :focus="vpModal.status"
-          id="modal-input"
           v-model="vpModal.value"
           placeholder="# 新的观点"
           placeholder-class="placeholder-class"
@@ -121,11 +122,13 @@ import {
   selectViewPoint,
   IPlayer,
   IPeople,
+  IViewPointPeople,
 } from '../../api/bet';
 import { Router } from '../../utils/uniapi';
 import { Loading, getRefElement } from '../../utils';
 import { Tool } from '@/mixins/tool';
 import { State, Mutation } from 'vuex-class';
+import day from 'dayjs';
 @Component({
   name: 'bet-info',
   components: {
@@ -157,20 +160,6 @@ export default class App extends Tool {
   get isCreate() {
     return !this.id;
   }
-  // {观点:[用户]}
-  get playerMapViewPoint(): { [key: string]: IPeople[] } {
-    return this.players.reduce((obj: { [key: string]: IPeople[] }, player) => {
-      let list = obj[player.viewPointId];
-      if (!list) {
-        list = obj[player.viewPointId] = [];
-      }
-      list.push(player.user);
-      if (player.customerId === this.user.id) {
-        this.selectViewPointId = player.viewPointId;
-      }
-      return obj;
-    }, {});
-  }
   // beforeMount(){}
   // mounted(){}
   // created(){}
@@ -198,8 +187,12 @@ export default class App extends Tool {
     this.intro = result.intro;
     this.viewPoints = result.viewPoints;
     this.players = result.player;
+    this.findSelectVPId();
   }
   toEdit(type = 'title') {
+    if (!this.isCreate) {
+      return;
+    }
     switch (type) {
       case 'title':
         return (this.isEditTitle = true);
@@ -218,7 +211,7 @@ export default class App extends Tool {
       if (!val) {
         return;
       }
-      this.viewPoints.push({ name: val, _id: '' });
+      this.viewPoints.push({ name: val, _id: '', users: [] });
     } else {
       if (!val) {
         this.removeViewPoint(ind);
@@ -241,6 +234,11 @@ export default class App extends Tool {
     });
     await selectViewPoint(this.id, vp._id);
     this.selectViewPointId = vp._id;
+    this.viewPoints[index].users.push({
+      _id: this.user.id,
+      ...this.user.info,
+      date: day().format('YYYY-MM-DD HH:MM'),
+    });
     uni.hideLoading();
     this.$store.commit('setIndexRefreshState', true);
   }
@@ -261,19 +259,23 @@ export default class App extends Tool {
   }
   viewViewPoint(index: number) {
     const item = this.viewPoints[index];
-    const users = this.playerMapViewPoint[item._id];
-    console.log(users);
-    this.setCache({
-      name: item.name,
-      users,
-    });
+    this.setCache(item);
     Router.to(`/pages/bet/viewpoint`);
-    console.log(index);
   }
   removeViewPoint(index: number) {
     this.offEdit();
     console.log(index);
     this.viewPoints.splice(index, 1);
+  }
+  findSelectVPId() {
+    for (const v of this.viewPoints) {
+      for (let u of v.users) {
+        if (this.user.id === u._id) {
+          this.selectViewPointId = v._id;
+          return;
+        }
+      }
+    }
   }
   clickAddViewPoint() {
     this.offEdit();
@@ -374,6 +376,7 @@ export default class App extends Tool {
       &.new {
         .button {
           background: #eece19;
+          color: #000;
         }
         .iconfont {
           right: 30upx;
@@ -427,8 +430,8 @@ export default class App extends Tool {
       width: $w * 2;
       height: $h * 2;
       border-radius: 50%;
-      background: linear-gradient(to top, #ff5e62, #ff9966);
-      box-shadow: 0 0 10upx #ff5e62;
+      background: #eece19;
+      box-shadow: 0 0 10upx #eece19;
       // text-align: left;
       // padding: 40upx;
       // transform: translate(50%, 50%);

@@ -22,12 +22,19 @@ export interface IPlayer {
   customerId: string;
   viewPointId: string;
   user: IPeople;
+  date: string;
+}
+export interface IViewPointCusromer extends IPeople {
+  date: string;
 }
 export interface IViewPoint {
   _id: string;
   name: string;
+  users: IViewPointCusromer[];
 }
-
+export interface IViewPointPeople extends IPeople {
+  date: string;
+}
 // 获取约定列表
 export async function getBetList(page: number) {
   return get<IBetListItem[]>(`/bet`, {

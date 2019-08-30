@@ -102,7 +102,8 @@ export default class App extends Vue {
     .button {
       padding: 20upx 20upx;
       font-size: 24upx;
-      background: linear-gradient(60deg, #5ba367, #448d7b);
+      background: #eece19;
+      color: #333;
       border-radius: 40upx;
       line-height: 1;
     }

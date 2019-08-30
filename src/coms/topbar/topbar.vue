@@ -56,10 +56,7 @@ class App extends Vue {
     }
     return style;
   }
-  mounted() {
-    const page = getCurrentPages();
-    console.log(page);
-  }
+  // mounted() {}
   backPage() {
     Router.back(-1);
   }
@@ -79,8 +76,9 @@ export default App;
     background: $background;
     z-index: -1;
   }
-  .background,.wrapper{
-    .b-image{
+  .background,
+  .wrapper {
+    .b-image {
       position: absolute;
       top: 0;
       left: 0;
